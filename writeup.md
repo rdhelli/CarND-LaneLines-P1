@@ -1,16 +1,14 @@
-# **Finding Lane Lines on the Road** 
+# **P1: Finding Lane Lines on the Road** 
 
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
+## My Writeup
 
 ---
 
 **Finding Lane Lines on the Road**
 
-The goals / steps of this project are the following:
+The goals / steps of this project were:
 * Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
+* Reflect on my work in a written report
 
 
 [//]: # (Image References)
@@ -27,7 +25,7 @@ The goals / steps of this project are the following:
 
 ### Reflection
 
-### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+### 1. The lane line detection pipeline
 
 My pipeline utilized the method of the classes with some fine-tuning and tricks. First the image is converted to grayscale, then a gaussian blurring follows, with a Kernel size of 5×5 pixels, to reduce noise related sudden increments in the gradients.
 ![alt text][image1]
@@ -38,10 +36,13 @@ Then I created a polygon to mask only the region of interest. I used relative di
 ![alt text][image4]
 Lines can be recovered with the help of a Hough transformation. Once again, I increased the thresholds to filter out smaller segments, as the dashed lane line can now be connected with greater line gaps (as long as classification is not required). This method helped limiting the number of line segments and stabilizing the detection pipeline.
 ![alt text][image5]
+
+### 2. Reconstructing the line segments into 2 lines
+
 To be able to build 2 continuous lane approximation lines, I modified the draw_lines() function. I classified the segments based on their theta angles into 3 categories: part of the right lane line if significantly positive, part of the left lane line if significantly negative, and a disturbance if close to zero. This method works practically over regular driving circumstances. The left and right segments are then averaged separately based on their slope and offset values. The resulting line equations were used to mark the endpoints in the region of interest.
 ![alt text][image7]
 
-### 2. Identify potential shortcomings with your current pipeline
+### 3. Potential shortcomings
 
 One shortcoming can be the sudden change in lighting conditions, or worn out lane lines, or cracks on the road surfaces. Practically anything that creates a sudden change in the gradient in the region of interest. The bigger the region, the more disturbances, the smaller the region, the less precise the model becomes.
 
@@ -49,7 +50,7 @@ Another shortcoming is the lane line approximation with a straight lines. A curv
 
 And lastly, such detection method is vulnerable against the traffic covering the visibility of the lane lines, as it lacks the creative extrapolating intuition of the human brains (or machine learning algorithms).
 
-### 3. Suggest possible improvements to your pipeline
+### 4. Possible improvements
 
 A possible improvement would be to apply time-based filtering between the consecutive frames. The single frames are only sampling the reality, but with a high enough fps, a level of continuity can be assumed. Thus salient values should be treated with caution.
 
