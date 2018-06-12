@@ -87,7 +87,7 @@ def draw_lines(img, lines, sy, color=[255, 0, 0], thickness=2):
             y1 = line[0][1]
             x2 = line[0][2]
             y2 = line[0][3]
-            cv2.line(img, (x1, y1), (x2, y2), color, thickness)  # x1,y1,x2,y2
+            # cv2.line(img, (x1, y1), (x2, y2), color, thickness)  # x1,y1,x2,y2
             theta = math.atan2(y2-y1,x2-x1) #
             b = y1 - math.tan(theta)*x1
             # b2 = y2 - math.tan(theta)*x2
@@ -123,7 +123,7 @@ def draw_lines(img, lines, sy, color=[255, 0, 0], thickness=2):
         # right_upper
         y_ru = int(sy/2*1.19)
         x_ru = int((sy/2*1.19-avg_right_b)/avg_right_m)
-        #drawing lines
+        # drawing lines
         cv2.line(img, (x_rl,y_rl),(x_ru,y_ru), [0,255,255], 4)
 
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap, sy):
@@ -205,12 +205,12 @@ def debug_process_image():
         ###
         for i,coords in enumerate(vertices[0]):
             cv2.line(lanelines,(vertices[0][i][0],vertices[0][i][1]),(vertices[0][(i+1)%len(vertices[0])][0],vertices[0][(i+1)%len(vertices[0])][1]),(0,0,255),2)
-        mpimg.imsave("test_images_output/{}_01_gray.png".format(im_name), gray, cmap='gray')
-        mpimg.imsave("test_images_output/{}_02_blurred.png".format(im_name), blurred, cmap='gray')
-        mpimg.imsave("test_images_output/{}_03_edges.png".format(im_name), edges, cmap='gray')
-        mpimg.imsave("test_images_output/{}_04_masked_edges.png".format(im_name), masked_edges, cmap='gray')
-        mpimg.imsave("test_images_output/{}_05_lines.png".format(im_name), lines)
-        mpimg.imsave("test_images_output/{}_06_lanelines.png".format(im_name), lanelines)
+        #mpimg.imsave("test_images_output/{}_01_gray.png".format(im_name), gray, cmap='gray')
+        #mpimg.imsave("test_images_output/{}_02_blurred.png".format(im_name), blurred, cmap='gray')
+        #mpimg.imsave("test_images_output/{}_03_edges.png".format(im_name), edges, cmap='gray')
+        #mpimg.imsave("test_images_output/{}_04_masked_edges.png".format(im_name), masked_edges, cmap='gray')
+        #mpimg.imsave("test_images_output/{}_05_lines.png".format(im_name), lines)
+        mpimg.imsave("test_images_output/{}_lanelines.png".format(im_name), lanelines)
     print("done processing")
 
 debug_process_image()
