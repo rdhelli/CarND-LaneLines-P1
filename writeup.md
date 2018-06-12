@@ -43,14 +43,16 @@ To be able to build 2 continuous lane approximation lines, I modified the draw_l
 
 ### 2. Identify potential shortcomings with your current pipeline
 
+One shortcoming can be the sudden change in lighting conditions, or worn out lane lines, or cracks on the road surfaces. Practically anything that creates a sudden change in the gradient in the region of interest. The bigger the region, the more disturbances, the smaller the region, the less precise the model becomes.
 
-One potential shortcoming would be what would happen when ... 
+Another shortcoming is the lane line approximation with a straight lines. A curvature in the road could cause the lane lines to miss the selected region of interest, and even if they fall inside, the straight lines can only be a rough estimate of where the robot can go.
 
-Another shortcoming could be ...
-
+And lastly, such detection method is vulnerable against the traffic covering the visibility of the lane lines, as it lacks the creative extrapolating intuition of the human brains (or machine learning algorithms).
 
 ### 3. Suggest possible improvements to your pipeline
 
-A possible improvement would be to ...
+A possible improvement would be to apply time-based filtering between the consecutive frames. The single frames are only sampling the reality, but with a high enough fps, a level of continuity can be assumed. Thus salient values should be treated with caution.
 
-Another potential improvement could be to ...
+Another potential improvement could be to also search for curving lines that are made up of continuous straight line segments.
+
+Another idea is to use vehicle dynamic variables, such as roll, pitch and yaw, to account for the changing angles and hence the changing perspective. The region of interest could be dynamically updated to surround the estimated trajectory.
