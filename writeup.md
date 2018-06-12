@@ -39,7 +39,7 @@ Then I created a polygon to mask only the region of interest. I used relative di
 Lines can be recovered with the help of a Hough transformation. Once again, I increased the thresholds to filter out smaller segments, as the dashed lane line can now be connected with greater line gaps (as long as classification is not required). This method helped limiting the number of line segments and stabilizing the detection pipeline.
 ![alt text][image5]
 To be able to build 2 continuous lane approximation lines, I modified the draw_lines() function. I classified the segments based on their theta angles into 3 categories: part of the right lane line if significantly positive, part of the left lane line if significantly negative, and a disturbance if close to zero. This method works practically over regular driving circumstances. The left and right segments are then averaged separately based on their slope and offset values. The resulting line equations were used to mark the endpoints in the region of interest.
-![alt text][image6]
+![alt text][image7]
 
 ### 2. Identify potential shortcomings with your current pipeline
 
