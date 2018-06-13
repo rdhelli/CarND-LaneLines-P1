@@ -4,13 +4,10 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 import os
-# %matplotlib inline
-import time
 import math
 
 # Import everything needed to edit/save/watch video clips
 from moviepy.editor import VideoFileClip
-from IPython.display import HTML
 
 def grayscale(img):
     """Applies the Grayscale transform
@@ -21,7 +18,13 @@ def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # Or use BGR2GRAY if you read an image with cv2.imread()
     # return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
+
+def colorselect(image, rth=200, gth=200, bth=200):
+    color_select = np.copy(image)
+    color_thresholds = (image[:, :, 0] < rth) | (image[:, :, 1] < gth) | (image[:, :, 2] < bth)
+    color_select[color_thresholds] = [0, 0, 0]
+    return color_select
+
 def canny(img, low_threshold, high_threshold):
     """Applies the Canny transform"""
     return cv2.Canny(img, low_threshold, high_threshold)
@@ -169,16 +172,18 @@ def process_image(image):
     # NOTE: The output you return should be a color image (3 channel) for processing video below
     # TODO: put your pipeline here,
     # you should return the final output (image where lines are drawn on lanes)
+    colorfilt = colorselect(image, 190, 190, 0)
     gray = grayscale(image)
     blurred = gaussian_blur(gray,5)
-    edges = canny(blurred,75,175)
+    edges1 = canny(blurred,75,175)
+    edges2 = canny(colorfilt,75,175)
+    edges = weighted_img(edges1,edges2,1,1,0)
     #edges = canny(blurred,75,175)
     sx, sy = image.shape[1],image.shape[0]
     vertices = np.array([[(.06*sx,sy),(sx/2*.95, sy/2*1.19), (sx/2*1.06, sy/2*1.19), (.97*sx,sy)]], dtype=np.int32)
     #vertices = np.array([[(.16*sx,.9*sy),(sx/2*.95, sy/2*1.19), (sx/2*1.06, sy/2*1.19), (.86*sx,.9*sy)]], dtype=np.int32)
     masked_edges = region_of_interest(edges,vertices)
     lines = hough_lines(masked_edges,1,np.pi/180,15,70,50, sy)
-    #lines = hough_lines(masked_edges,2,np.pi/180,15,70,50, sy)
     lanelines = weighted_img(lines,image)
     return lanelines
 
@@ -191,29 +196,31 @@ def debug_process_image():
         print("processing ", im_name, "...")
         image = mpimg.imread('test_images/{}'.format(im_name))
         ### COPY of process_image(image) function
+        colorfilt = colorselect(image, 190, 190, 0)
         gray = grayscale(image)
         blurred = gaussian_blur(gray,5)
-        edges = canny(blurred,75,175)
+        edges1 = canny(blurred,75,175)
+        edges2 = canny(colorfilt,75,175)
+        edges = weighted_img(edges1,edges2,1,1,0)
         #edges = canny(blurred,75,175)
         sx, sy = image.shape[1],image.shape[0]
         vertices = np.array([[(.06*sx,sy),(sx/2*.95, sy/2*1.19), (sx/2*1.06, sy/2*1.19), (.97*sx,sy)]], dtype=np.int32)
         #vertices = np.array([[(.16*sx,.9*sy),(sx/2*.95, sy/2*1.19), (sx/2*1.06, sy/2*1.19), (.86*sx,.9*sy)]], dtype=np.int32)
         masked_edges = region_of_interest(edges,vertices)
         lines = hough_lines(masked_edges,1,np.pi/180,15,70,50, sy)
-        #lines = hough_lines(masked_edges,2,np.pi/180,15,70,50, sy)
         lanelines = weighted_img(lines,image)
         ###
         for i,coords in enumerate(vertices[0]):
             cv2.line(lanelines,(vertices[0][i][0],vertices[0][i][1]),(vertices[0][(i+1)%len(vertices[0])][0],vertices[0][(i+1)%len(vertices[0])][1]),(0,0,255),2)
-        #mpimg.imsave("test_images_output/{}_01_gray.png".format(im_name), gray, cmap='gray')
+        mpimg.imsave("test_images_output/{}_01_gray.png".format(im_name), colorfilt)
         #mpimg.imsave("test_images_output/{}_02_blurred.png".format(im_name), blurred, cmap='gray')
-        #mpimg.imsave("test_images_output/{}_03_edges.png".format(im_name), edges, cmap='gray')
-        #mpimg.imsave("test_images_output/{}_04_masked_edges.png".format(im_name), masked_edges, cmap='gray')
-        #mpimg.imsave("test_images_output/{}_05_lines.png".format(im_name), lines)
-        mpimg.imsave("test_images_output/{}_lanelines.png".format(im_name), lanelines)
+        mpimg.imsave("test_images_output/{}_03_edges.png".format(im_name), edges, cmap='gray')
+        mpimg.imsave("test_images_output/{}_04_masked_edges.png".format(im_name), masked_edges, cmap='gray')
+        mpimg.imsave("test_images_output/{}_05_lines.png".format(im_name), lines)
+        mpimg.imsave("test_images_output/{}_06_lanelines.png".format(im_name), lanelines)
     print("done processing")
 
-debug_process_image()
+# debug_process_image()
     
 def process_video():
     for vid_name in os.listdir("test_videos/"):
@@ -226,9 +233,13 @@ def process_video():
         clip1 = VideoFileClip("test_videos/{}".format(vid_name))#.subclip(0,5)
         white_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
         white_clip.write_videofile(white_output, audio=False)
+        clip1.reader.close()
+        clip1.audio.reader.close_proc()
+        clip1.reader.close()
+        clip1.audio.reader.close_proc()
         del clip1
 
-# process_video()
+process_video()
 
 #def process_image(image):
 #    # NOTE: The output you return should be a color image (3 channel) for processing video below
